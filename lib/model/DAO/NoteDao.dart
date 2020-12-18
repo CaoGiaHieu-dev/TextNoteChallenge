@@ -1,0 +1,19 @@
+import 'package:challenge/model/models/note.dart';
+import 'package:floor/floor.dart';
+
+
+@dao
+abstract class NoteDao
+{
+  @Query("SELECT * FROM Note")
+  Stream<List<Note>> getallnote();
+
+  @Query("SELECT * FROM Note")
+  Stream<List<Note>> getallnoteasStream();
+
+  @Query("SELECT * FROM Note WHERE id = :id")
+  Future<Note> getnote(int id);
+  
+  @insert
+  Future<void> insertNote(Note note);
+}
