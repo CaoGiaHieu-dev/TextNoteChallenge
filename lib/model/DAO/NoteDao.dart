@@ -6,7 +6,7 @@ import 'package:floor/floor.dart';
 abstract class NoteDao
 {
   @Query("SELECT * FROM Note")
-  Stream<List<Note>> getallnote();
+  Future<List<Note>> getallnoteasFuture();
 
   @Query("SELECT * FROM Note")
   Stream<List<Note>> getallnoteasStream();

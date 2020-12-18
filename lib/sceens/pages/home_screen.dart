@@ -1,6 +1,5 @@
 
 import 'package:challenge/components/constants.dart';
-import 'package:challenge/components/datetimepicker.dart';
 import 'package:challenge/components/notification.dart';
 import 'package:challenge/model/DAO/NoteDao.dart';
 import 'package:challenge/model/models/note.dart';
@@ -34,7 +33,6 @@ class _HomeSceensState extends State<HomeSceens>
   {
     
     super.initState();
-    DateTimePicker.init();
     localNotifyManager.setOnNotificationReceive(onNotificationReceive);
     localNotifyManager.setOnNotificationClick(onNotificationClick);
 
@@ -70,13 +68,21 @@ class _HomeSceensState extends State<HomeSceens>
             context, 
             MaterialPageRoute
             (
-              builder: (context) =>NoteScreen() 
+              builder: (context) =>NoteScreen
+              (
+                dao : this.widget.dao
+              ) 
             )
-          );
+          ).whenComplete(() 
+          {
+            setState(() {
+              
+            });
+          });
           // dateTimePicker.selectDate(context);
           // await _selectedTime(context);
           // await _selectDate(context);
-          //await localNotifyManager.showNotification();
+          // await localNotifyManager.showNotification();
           // await localNotifyManager.schedulesNotification();
           // await localNotifyManager.repeatNotification();
         },

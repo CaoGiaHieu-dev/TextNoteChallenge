@@ -115,10 +115,8 @@ class _$NoteDao extends NoteDao {
   final InsertionAdapter<Note> _noteInsertionAdapter;
 
   @override
-  Stream<List<Note>> getallnote() {
-    return _queryAdapter.queryListStream('SELECT * FROM Note',
-        queryableName: 'Note',
-        isView: false,
+  Future<List<Note>> getallnoteasFuture() async {
+    return _queryAdapter.queryList('SELECT * FROM Note',
         mapper: (Map<String, dynamic> row) => Note(
             row['id'] as int,
             row['title'] as String,

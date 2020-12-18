@@ -24,7 +24,7 @@ class _SwipeState extends State<SwipeList>
   {
     return Container
     (
-      height: this.widget.size.height *0.25 - 10,
+      height: this.widget.size.height *0.2 ,
       child: ListView.builder
       (
         scrollDirection: Axis.horizontal,
@@ -44,7 +44,7 @@ class _SwipeState extends State<SwipeList>
             child: Container
             (
               width: this.widget.size.width / 2 -10,
-              height: this.widget.size.height * 0.25 -10,
+              height: this.widget.size.height * 0.25 -50,
               child: Text
               (
                 "$index"
