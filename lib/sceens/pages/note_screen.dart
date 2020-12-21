@@ -69,10 +69,10 @@ class _NoteScreenState extends State<NoteScreen>
                   Note
                   (
                     null, //id
-                    "title", //title
-                    "body", //body
+                    _title, //title
+                    _body , //body
                     dateTimePicker.date.add(Duration(hours:dateTimePicker.time.hour,minutes: dateTimePicker.time.minute)) , //datetime
-                    false //active
+                    0 //active
                   )
                 );
                 Navigator.of(context).pop();
