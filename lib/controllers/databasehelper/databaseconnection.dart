@@ -10,15 +10,15 @@ import 'datetimeconvert.dart';
 part 'databaseconnection.g.dart'; // the generated code will be there
 
 @TypeConverters([DateTimeConverter])
-@Database(version: 2, entities: [Note], views:[Note])
+@Database(version: 3, entities: [Note], views:[Note])
 abstract class NoteDB  extends FloorDatabase 
 {
   NoteDao get noteDao;
 }
 
 // create migration
-final migration1to2 = Migration(1, 2, (database) async 
+final migration1to2 = Migration(2, 3, (database) async 
 {
-  database.execute('ALTER TABLE Note ADD COLUMN active INT');
+  database.execute('ALTER TABLE Note ADD COLUMN type INT');
 });
   

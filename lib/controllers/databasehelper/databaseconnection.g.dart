@@ -63,7 +63,7 @@ class _$NoteDB extends NoteDB {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
@@ -78,7 +78,7 @@ class _$NoteDB extends NoteDB {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT, `body` TEXT, `time` INTEGER, `active` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `Note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT, `body` TEXT, `time` INTEGER, `active` INTEGER, `type` INTEGER)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -103,7 +103,8 @@ class _$NoteDao extends NoteDao {
                   'title': item.title,
                   'body': item.body,
                   'time': _dateTimeConverter.encode(item.time),
-                  'active': item.active
+                  'active': item.active,
+                  'type': item.type
                 },
             changeListener),
         _noteUpdateAdapter = UpdateAdapter(
@@ -115,7 +116,8 @@ class _$NoteDao extends NoteDao {
                   'title': item.title,
                   'body': item.body,
                   'time': _dateTimeConverter.encode(item.time),
-                  'active': item.active
+                  'active': item.active,
+                  'type': item.type
                 },
             changeListener);
 
@@ -137,7 +139,8 @@ class _$NoteDao extends NoteDao {
             row['title'] as String,
             row['body'] as String,
             _dateTimeConverter.decode(row['time'] as int),
-            row['active'] as int));
+            row['active'] as int,
+            row['type'] as int));
   }
 
   @override
@@ -150,7 +153,8 @@ class _$NoteDao extends NoteDao {
             row['title'] as String,
             row['body'] as String,
             _dateTimeConverter.decode(row['time'] as int),
-            row['active'] as int));
+            row['active'] as int,
+            row['type'] as int));
   }
 
   @override
@@ -162,7 +166,8 @@ class _$NoteDao extends NoteDao {
             row['title'] as String,
             row['body'] as String,
             _dateTimeConverter.decode(row['time'] as int),
-            row['active'] as int));
+            row['active'] as int,
+            row['type'] as int));
   }
 
   @override

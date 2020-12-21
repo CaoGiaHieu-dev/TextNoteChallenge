@@ -17,3 +17,4 @@ const double kDefaultPadding = 20.0;
 final String apiKey = "AIzaSyApWsNkDuwOLH7kuTuW17lJpIrGlpiU_bs";
 
 
+enum Type { daily, attime }

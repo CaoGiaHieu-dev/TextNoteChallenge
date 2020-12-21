@@ -14,13 +14,16 @@ import 'package:floor/floor.dart';
     final DateTime time;
     
     final int active ;
+
+    final int type ;
     Note
     (
       this.id, 
       this.title,
       this.body,
       this.time,
-      this.active
+      this.active,
+      this.type
     );
 
     @override
@@ -32,14 +35,15 @@ import 'package:floor/floor.dart';
             title == other.title &&
             body == other.body &&
             time == other.time &&
-            active == other.active;
+            active == other.active &&
+            type == other.type;
 
     @override
-    int get hashCode => id.hashCode ^ title.hashCode ^ body.hashCode ^ time.hashCode ^ active.hashCode ;
+    int get hashCode => id.hashCode ^ title.hashCode ^ body.hashCode ^ time.hashCode ^ active.hashCode ^type.hashCode ;
 
     @override
     String toString() 
     {
-      return 'Task{id: $id, title: $title ,body : $body , time:$time , active:$active}';
+      return 'Task{id: $id, title: $title ,body : $body , time:$time , active:$active ,type:$type}';
     }
  }  
