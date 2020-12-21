@@ -63,7 +63,7 @@ class _$NoteDB extends NoteDB {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
@@ -103,7 +103,7 @@ class _$NoteDao extends NoteDao {
                   'title': item.title,
                   'body': item.body,
                   'time': _dateTimeConverter.encode(item.time),
-                  'active': item.active == null ? null : (item.active ? 1 : 0)
+                  'active': item.active
                 },
             changeListener),
         _noteUpdateAdapter = UpdateAdapter(
@@ -115,7 +115,7 @@ class _$NoteDao extends NoteDao {
                   'title': item.title,
                   'body': item.body,
                   'time': _dateTimeConverter.encode(item.time),
-                  'active': item.active == null ? null : (item.active ? 1 : 0)
+                  'active': item.active
                 },
             changeListener);
 
@@ -137,7 +137,7 @@ class _$NoteDao extends NoteDao {
             row['title'] as String,
             row['body'] as String,
             _dateTimeConverter.decode(row['time'] as int),
-            row['active'] == null ? null : (row['active'] as int) != 0));
+            row['active'] as int));
   }
 
   @override
@@ -150,7 +150,7 @@ class _$NoteDao extends NoteDao {
             row['title'] as String,
             row['body'] as String,
             _dateTimeConverter.decode(row['time'] as int),
-            row['active'] == null ? null : (row['active'] as int) != 0));
+            row['active'] as int));
   }
 
   @override
@@ -162,7 +162,7 @@ class _$NoteDao extends NoteDao {
             row['title'] as String,
             row['body'] as String,
             _dateTimeConverter.decode(row['time'] as int),
-            row['active'] == null ? null : (row['active'] as int) != 0));
+            row['active'] as int));
   }
 
   @override
@@ -177,8 +177,8 @@ class _$NoteDao extends NoteDao {
   }
 
   @override
-  Future<int> updatePersons(List<Note> note) {
-    return _noteUpdateAdapter.updateListAndReturnChangedRows(
+  Future<int> updateNote(Note note) {
+    return _noteUpdateAdapter.updateAndReturnChangedRows(
         note, OnConflictStrategy.abort);
   }
 }

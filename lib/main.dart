@@ -10,7 +10,7 @@ Future<void> main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
   LocalNotifyManager.init();
-  final database = await $FloorNoteDB.databaseBuilder('database.db').build();
+  final database = await $FloorNoteDB.databaseBuilder('database.db').addMigrations([migration1to2]).build();
   final dao = database.noteDao ;
 
   runApp(MyApp(dao));
