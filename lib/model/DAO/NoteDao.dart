@@ -21,5 +21,5 @@ abstract class NoteDao
   Future<void> deleteNote(int id);
 
   @update
-  Future<int> updatePersons(List<Note> note); 
+  Future<int> updateNote(Note note); 
 }

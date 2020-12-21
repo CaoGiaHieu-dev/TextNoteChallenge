@@ -10,6 +10,8 @@ final Color kBackGroundColor = HexColor("#FFEBCF");
 
 final Color kTextColor = HexColor("##F18C8E");
 
+final Color kDefault = HexColor("#F1D1B5");
+
 const double kDefaultPadding = 20.0;
 
 final String apiKey = "AIzaSyApWsNkDuwOLH7kuTuW17lJpIrGlpiU_bs";

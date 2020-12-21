@@ -2,6 +2,8 @@
 
 
 import 'package:challenge/components/constants.dart';
+import 'package:challenge/model/models/note.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -59,39 +61,83 @@ class _ListItemsState extends State<ListItems>
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) 
                 {
-                  return Card
+                  return Slidable
                   (
-                    semanticContainer: true,
-                    borderOnForeground: true,
-                    color: kMainColor,
-                    child: Container
-                    (
-                      width: this.widget.size.width / 2 -10,
-                      height: this.widget.size.height * 0.1 ,
-                      child: Column
+                    actionPane: SlidableDrawerActionPane(),
+                    actionExtentRatio: 0.25,
+                    secondaryActions: <Widget>
+                    [
+                      IconSlideAction
                       (
-                        children: <Widget>
-                        [
-                          Text
-                          (
-                            "${snapshot.data[index].title}"
-                          ),
-                          Spacer(),
-                          Text
-                          (
-                            "${snapshot.data[index].body}"
-                          ),
-                          Spacer(),
-                          Align
-                          (
-                            alignment: Alignment.bottomRight,
-                            child: Text
+                        caption: 'Active',
+                        color: kButtonColor,
+                        icon: Icons.local_activity_rounded,
+                        onTap: () 
+                        {
+                          setState(() 
+                          {
+                            this.widget.dao.updateNote
                             (
-                              "${DateFormat('yyyy-MM-dd HH:mm').format(snapshot.data[index].time)}"
+                              Note
+                              (
+                                snapshot.data[index].id,
+                                snapshot.data[index].title,
+                                snapshot.data[index].body,
+                                snapshot.data[index].time,
+                                1
+                              )
+                            );
+                          });
+                        },
+                      ),
+                      IconSlideAction
+                      (
+                        caption: 'Remove',
+                        color: Colors.red,
+                        icon: Icons.delete,
+                        onTap: () 
+                        {
+                          setState(() 
+                          {
+                            this.widget.dao.deleteNote(snapshot.data[index].id);
+                          });
+                        },
+                      ),
+                    ],
+                    child: Card
+                    (
+                      semanticContainer: true,
+                      borderOnForeground: true,
+                      color: snapshot.data[index].active ==1 ? kMainColor :kDefault,
+                      child: Container
+                      (
+                        width: this.widget.size.width / 2 -10,
+                        height: this.widget.size.height * 0.1 ,
+                        child: Column
+                        (
+                          children: <Widget>
+                          [
+                            Text
+                            (
+                              "${snapshot.data[index].title}"
                             ),
-                          )
-                        ],
-                      )
+                            Spacer(),
+                            Text
+                            (
+                              "${snapshot.data[index].body}"
+                            ),
+                            Spacer(),
+                            Align
+                            (
+                              alignment: Alignment.bottomRight,
+                              child: Text
+                              (
+                                "${DateFormat('yyyy-MM-dd HH:mm').format(snapshot.data[index].time)}"
+                              ),
+                            )
+                          ],
+                        )
+                      ),
                     ),
                   );
                 },

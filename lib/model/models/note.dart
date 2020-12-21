@@ -13,7 +13,7 @@ import 'package:floor/floor.dart';
 
     final DateTime time;
     
-    final bool active ;
+    final int active ;
     Note
     (
       this.id, 
