@@ -116,11 +116,49 @@ class LocalNotifyManager
     );
   }
 
-  //schedules Notification
-  Future<void> schedulesNotification(DateTime dateTime ) async
+  //daily notification
+  Future<void> dailyNotification(DateTime dateTime , int id , String title , String body) async
   {
+    var _time = Time(dateTime.hour,dateTime.minute,dateTime.second);
+    //on android
+    var androidChanel = AndroidNotificationDetails
+    (
+      "CHANNEL_ID", "CHANNEL_NAME", "CHANNEL_DESCRIPTION",
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      
+    );
+    //on ios
+    var iosChannel =IOSNotificationDetails();
+
+    var platformChannel =NotificationDetails
+    (
+      android: androidChanel,
+      iOS: iosChannel,
+    );
+
+    // ignore: deprecated_member_use
+    await _flutterLocationNotify.showDailyAtTime
+    (
+      id, //id
+      title,  //title
+      body, //body
+      _time,
+      platformChannel,  //
+      payload: "New payload",  //payload //payload
+    );
+  }
+
+
+  //schedules Notification
+  Future<void> schedulesNotification(DateTime dateTime , int id , String title , String body ) async
+  {
+    var schedulesNotificationDataTime;
     //set time 
-    var schedulesNotificationDataTime = tz.TZDateTime(tz.local,dateTime.year, dateTime.month, dateTime.day, dateTime.hour,dateTime.minute);
+    dateTime != null 
+    ? schedulesNotificationDataTime = tz.TZDateTime(tz.local,dateTime.year, dateTime.month, dateTime.day, dateTime.hour,dateTime.minute)
+    : schedulesNotificationDataTime = null;
     //on android
     var androidChanel = AndroidNotificationDetails
     (
@@ -141,10 +179,10 @@ class LocalNotifyManager
 
     await _flutterLocationNotify.zonedSchedule
     (
-      0, //id
-      "Schedules Test title",  //title
-      "Schedules Test Body",
-      schedulesNotificationDataTime, //body
+      id, //id
+      title,  //title
+      body, //body
+      schedulesNotificationDataTime, 
       platformChannel,  //
       payload: "Schedules New payload",
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, 
@@ -152,7 +190,7 @@ class LocalNotifyManager
     );
   }
     //repeat Notification
-  Future<void> repeatNotification() async
+  Future<void> repeatNotification(int id , String title , String body) async
   {
     //on android
     var androidChanel = AndroidNotificationDetails
@@ -161,6 +199,7 @@ class LocalNotifyManager
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
+      enableLights: true
       
     );
     //on ios
@@ -174,10 +213,10 @@ class LocalNotifyManager
 
     await _flutterLocationNotify.periodicallyShow
     (
-      0, //id
-      "Schedules Test title",  //title
-      "Schedules Test Body",
-      RepeatInterval.everyMinute, //body
+      id, //id
+      title,  //title
+      body, // body
+      RepeatInterval.daily,
       platformChannel,  //
       payload: "Schedules New payload",
       androidAllowWhileIdle: true  //payload

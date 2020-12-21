@@ -9,11 +9,13 @@ import 'package:intl/intl.dart';
 class NoteScreen extends StatefulWidget
 {
   final NoteDao dao ;
+  final Note oldvalues;
   NoteScreen
   (
     {
       Key key,
-      @required this.dao
+      @required this.dao,
+      this.oldvalues,
     }
   ): super(key: key);
   @override
@@ -25,15 +27,19 @@ class _NoteScreenState extends State<NoteScreen>
   //property
   bool _validateTitle ;
   bool _validatetime ;
+  bool _updated;
   bool _validateDate ;
   String _title ;
   String _body ;
-
+  Type _type = Type.daily;
   @override
   void initState() 
   {
+    DateTimePicker.init();
     dateTimePicker.time=null;
     dateTimePicker.date=null;
+
+    _updated = false;
 
     //init validate
     _validateTitle=false;
@@ -42,6 +48,16 @@ class _NoteScreenState extends State<NoteScreen>
 
     _title==null ?_title ="" : _title = _title;
     _body==null ? _body ="" : _body = _body;
+
+    if(this.widget.oldvalues != null)
+    {
+      _title = this.widget.oldvalues.title;
+      _body = this.widget.oldvalues.body;
+      dateTimePicker.date = this.widget.oldvalues.time;
+      dateTimePicker.time = TimeOfDay(hour:this.widget.oldvalues.time.hour  , minute: this.widget.oldvalues.time.minute );
+      _updated=true;
+      this.widget.oldvalues.type == 1 ?_type = Type.attime : _type = Type.daily;
+    }
     super.initState();
   }
 
@@ -64,7 +80,20 @@ class _NoteScreenState extends State<NoteScreen>
               if(_title!= null && _title != "" && dateTimePicker.time!=null && dateTimePicker.date!=null)
               {
                 //insert new note
-                await this.widget.dao.insertNote
+                _updated == true
+                ? await this.widget.dao.updateNote
+                (
+                  Note
+                  (
+                    this.widget.oldvalues.id, //id
+                    _title, //title
+                    _body , //body
+                    dateTimePicker.date.add(Duration(hours:dateTimePicker.time.hour,minutes: dateTimePicker.time.minute)) , //datetime
+                    0,//active
+                    _type.index 
+                  )
+                )
+                : await this.widget.dao.insertNote
                 (
                   Note
                   (
@@ -72,7 +101,8 @@ class _NoteScreenState extends State<NoteScreen>
                     _title, //title
                     _body , //body
                     dateTimePicker.date.add(Duration(hours:dateTimePicker.time.hour,minutes: dateTimePicker.time.minute)) , //datetime
-                    0 //active
+                    0, //active
+                    _type.index 
                   )
                 );
                 Navigator.of(context).pop();
@@ -263,9 +293,64 @@ class _NoteScreenState extends State<NoteScreen>
                 //selceted datetime
                 SizedBox
                 (
-                  height: 50,
+                  height: 10,
                 ),
                 Row
+                (
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>
+                  [
+                    Container
+                    (
+                      width: size.width /2 -20,
+                      child: ListTile
+                      (
+                        title: Text('Daily'),
+                        leading: Radio
+                        (
+                          value: Type.daily,
+                          groupValue: _type,
+                          onChanged: (Type value) 
+                          {
+                            setState(() 
+                            {
+                              _type = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Container
+                    (
+                      width: size.width /2 -20,
+                      child: ListTile
+                      (
+                        title: Text('At Time'),
+                        leading: Radio
+                        (
+                          value: Type.attime,
+                          groupValue: _type,
+                          onChanged: (Type value) 
+                          {
+                            setState(() 
+                            {
+                              _type = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                //selceted datetime
+                SizedBox
+                (
+                  height: 10,
+                ),
+                _type.index == 1
+                ? Row
                 (
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -295,6 +380,7 @@ class _NoteScreenState extends State<NoteScreen>
                               setState(() 
                               {
                                 dateTimePicker.date = value;
+                                _validateDate = false;
                               });
                             }
                           });
@@ -360,6 +446,7 @@ class _NoteScreenState extends State<NoteScreen>
                               setState(() 
                               {
                                 dateTimePicker.time = value;
+                                _validatetime = false;
                               });
                             }
                           });
@@ -397,7 +484,76 @@ class _NoteScreenState extends State<NoteScreen>
                     )
                   
                   ],
-                ),
+                )
+                : Container
+                (
+                  width: size.width /2 -20,
+                  alignment: Alignment.center,
+                  child: TextField
+                  (
+                    onTap:() 
+                    {
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                      showTimePicker
+                      (
+                        context: context,
+                        initialTime: TimeOfDay(hour: dateTimePicker.datetime.hour, minute: dateTimePicker.datetime.minute),
+                        builder: (BuildContext context, Widget child) 
+                        {
+                          return MediaQuery
+                          (
+                            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+                            child: child,
+                          );
+                        },
+                      ).then((value)
+                      {
+                        if(value !=null )
+                        {
+                          setState(() 
+                          {
+                            DateTime now = new DateTime.now();
+                            dateTimePicker.date = new DateTime(now.year , now.month , now.day);
+                            dateTimePicker.time = value;
+                            _validatetime = false;
+                            _validateDate = false;
+
+                          });
+                        }
+                      });
+                    },
+                    readOnly: true,
+                    keyboardType: TextInputType.text ,
+                    textAlign: TextAlign.center,
+                    controller: TextEditingController
+                    (
+                      text: dateTimePicker.time==null 
+                      ? "Selected time"
+                      : "${dateTimePicker.time.hour} : ${dateTimePicker.time.minute}"
+                      // : DateFormat('yyyy-MM-dd').format(dateTimePicker.time)
+                    ),
+                    decoration: InputDecoration
+                    (
+                      errorText: _validatetime ? "Time have to be selected" : null,
+                      border: OutlineInputBorder
+                      (
+                        borderSide: BorderSide
+                        (
+                          color: kMainColor,
+                        )
+                      )
+                    ),
+                    onChanged: (text)
+                    {
+                      if(text.isEmpty || dateTimePicker.time==null )
+                      {
+                        _validatetime = true;
+                        _validateDate =true;
+                        dateTimePicker.time=null;
+                      }
+                    },
+                  )
+                )
               ],
             ),
           ),

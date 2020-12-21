@@ -2,7 +2,9 @@
 
 
 import 'package:challenge/components/constants.dart';
+import 'package:challenge/components/notification.dart';
 import 'package:challenge/model/models/note.dart';
+import 'package:challenge/sceens/pages/note_screen.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
@@ -69,9 +71,9 @@ class _ListItemsState extends State<ListItems>
                     [
                       IconSlideAction
                       (
-                        caption: 'Active',
+                        caption: snapshot.data[index].active == 1 ? "Deactive" :'Active',
                         color: kButtonColor,
-                        icon: Icons.local_activity_rounded,
+                        icon: snapshot.data[index].active == 1? Icons.notifications_off : Icons.notifications_active,
                         onTap: () 
                         {
                           setState(() 
@@ -84,9 +86,14 @@ class _ListItemsState extends State<ListItems>
                                 snapshot.data[index].title,
                                 snapshot.data[index].body,
                                 snapshot.data[index].time,
-                                1
+                                snapshot.data[index].active == 1 ? 0 : 1,
+                                 snapshot.data[index].type
                               )
                             );
+                            snapshot.data[index].active == 1
+                            ? localNotifyManager.cancelNotification(snapshot.data[index].id)
+                            : localNotifyManager.dailyNotification(snapshot.data[index].time,snapshot.data[index].id, snapshot.data[index].title, snapshot.data[index].body);
+                            
                           });
                         },
                       ),
@@ -100,43 +107,83 @@ class _ListItemsState extends State<ListItems>
                           setState(() 
                           {
                             this.widget.dao.deleteNote(snapshot.data[index].id);
+                            localNotifyManager.cancelNotification(snapshot.data[index].id);
                           });
                         },
                       ),
                     ],
-                    child: Card
+                    child: GestureDetector
                     (
-                      semanticContainer: true,
-                      borderOnForeground: true,
-                      color: snapshot.data[index].active ==1 ? kMainColor :kDefault,
-                      child: Container
-                      (
-                        width: this.widget.size.width / 2 -10,
-                        height: this.widget.size.height * 0.1 ,
-                        child: Column
+                      onTap: () 
+                      {
+                        Navigator.push
                         (
-                          children: <Widget>
-                          [
-                            Text
+                          context, 
+                          MaterialPageRoute
+                          (
+                            builder: (context) =>NoteScreen
                             (
-                              "${snapshot.data[index].title}"
-                            ),
-                            Spacer(),
-                            Text
-                            (
-                              "${snapshot.data[index].body}"
-                            ),
-                            Spacer(),
-                            Align
-                            (
-                              alignment: Alignment.bottomRight,
-                              child: Text
+                              dao : this.widget.dao,
+                              oldvalues : snapshot.data[index],
+                            ) 
+                          )
+                        ).whenComplete(() 
+                        {
+                          setState(() 
+                          {
+                            
+                          });
+                        });
+                      },
+                      child: Card
+                      (
+                        semanticContainer: true,
+                        borderOnForeground: true,
+                        color: snapshot.data[index].active ==1 ? kMainColor :kDefault,
+                        child: Container
+                        (
+                          width: this.widget.size.width / 2 -10,
+                          height: this.widget.size.height * 0.1 ,
+                          child: Column
+                          (
+                            children: <Widget>
+                            [
+                              Text
                               (
-                                "${DateFormat('yyyy-MM-dd HH:mm').format(snapshot.data[index].time)}"
+                                "${snapshot.data[index].title}"
                               ),
-                            )
-                          ],
-                        )
+                              Spacer(),
+                              Text
+                              (
+                                "${snapshot.data[index].body}"
+                              ),
+                              Spacer(),
+                              Row
+                              (
+                                children: <Widget>
+                                [
+                                  Align
+                                  (
+                                    alignment: Alignment.bottomRight,
+                                    child: Text
+                                    (
+                                      "${DateFormat('yyyy-MM-dd HH:mm').format(snapshot.data[index].time)}"
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Align
+                                  (
+                                    alignment: Alignment.bottomLeft,
+                                    child: Text
+                                    (
+                                      (snapshot.data[index].type)==1 ? "At Time" : "Daily"
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          )
+                        ),
                       ),
                     ),
                   );
@@ -156,87 +203,6 @@ class _ListItemsState extends State<ListItems>
           );
         },
       )
-      // height: this.widget.size.height ,
-      // child: StreamBuilder<List<Note>>
-      // (
-      //   stream: this.widget.dao.getallnoteasStream(),
-      //   builder: (context, snapshot) 
-      //   {
-      //     if(snapshot.hasData && snapshot.data.length >0)
-      //     {
-      //       return Container
-      //       (
-      //         width: this.widget.size.width - 5,
-      //         height: this.widget.size.height * 0.25 -10,
-      //         child: ListView.builder
-      //         (
-      //           physics: NeverScrollableScrollPhysics(),
-      //           scrollDirection: Axis.vertical,
-      //           padding: EdgeInsets.only
-      //           (
-      //             left: 5,
-      //             right: 5
-      //           ),
-      //           itemCount: snapshot.data.length,
-      //           itemBuilder: (context, index) 
-      //           {
-      //             return Card
-      //             (
-      //               semanticContainer: true,
-      //               borderOnForeground: true,
-      //               color: kMainColor,
-      //               child: Container
-      //               (
-      //                 width: this.widget.size.width / 2 -10,
-      //                 height: this.widget.size.height * 0.25 -10,
-      //                 child: Text
-      //                 (
-      //                   "${snapshot.data[index].title}"
-      //                 ),
-      //               ),
-      //             );
-      //           },
-      //         ),
-      //       );
-      //     }
-      //     return Container
-      //     (
-      //       child: Center
-      //       (
-      //         child : Text
-      //         (
-      //           "Notthing to show"
-      //         )
-      //       ),
-      //     );
-      //   },
-      // ),
-
-      // child: ListView.builder
-      // (
-      //   physics: NeverScrollableScrollPhysics(),
-      //   scrollDirection: Axis.vertical,
-      //   padding: EdgeInsets.only
-      //   (
-      //     left: 5,
-      //     right: 5
-      //   ),
-      //   itemCount: 10,
-      //   itemBuilder: (context, index) 
-      //   {
-      //     return Card
-      //     (
-      //       semanticContainer: true,
-      //       borderOnForeground: true,
-      //       color: kMainColor,
-      //       child: Container
-      //       (
-      //         width: this.widget.size.width / 2 -10,
-      //         height: this.widget.size.height * 0.25 -10,
-      //       ),
-      //     );
-      //   },
-      // ),
     );
   }
 }
