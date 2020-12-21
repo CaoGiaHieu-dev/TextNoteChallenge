@@ -24,6 +24,8 @@ class _NoteScreenState extends State<NoteScreen>
 {
   //property
   bool _validateTitle ;
+  bool _validatetime ;
+  bool _validateDate ;
   String _title ;
   String _body ;
 
@@ -32,7 +34,12 @@ class _NoteScreenState extends State<NoteScreen>
   {
     dateTimePicker.time=null;
     dateTimePicker.date=null;
+
+    //init validate
     _validateTitle=false;
+    _validatetime=false;
+    _validateDate=false;
+
     _title==null ?_title ="" : _title = _title;
     _body==null ? _body ="" : _body = _body;
     super.initState();
@@ -54,16 +61,50 @@ class _NoteScreenState extends State<NoteScreen>
           (
             onTap: () async
             {
-              if(_title!= null && _title != "")
+              if(_title!= null && _title != "" && dateTimePicker.time!=null && dateTimePicker.date!=null)
               {
-                await this.widget.dao.insertNote(Note(null, "title", "body", dateTimePicker.date));
+                //insert new note
+                await this.widget.dao.insertNote
+                (
+                  Note
+                  (
+                    null, //id
+                    "title", //title
+                    "body", //body
+                    dateTimePicker.date.add(Duration(hours:dateTimePicker.time.hour,minutes: dateTimePicker.time.minute)) , //datetime
+                    false //active
+                  )
+                );
                 Navigator.of(context).pop();
               } 
               else
               {
                 setState(() 
                 {
-                  _validateTitle=true;
+                  if(_title== null || _title == "")
+                  {
+                    _validateTitle=true;
+                  }
+                  else
+                  {
+                    _validateTitle=false;
+                  }
+                  if(dateTimePicker.time==null)
+                  {
+                    _validatetime=true;
+                  }
+                  else
+                  {
+                    _validatetime=false;
+                  }
+                  if(dateTimePicker.date==null)
+                  {
+                    _validateDate=true;
+                  }
+                  else
+                  {
+                    _validateDate=false;
+                  }
                 });
               } 
             },
@@ -270,6 +311,7 @@ class _NoteScreenState extends State<NoteScreen>
                         ),
                         decoration: InputDecoration
                         (
+                           errorText: _validateDate? "Date have to be selected" : null,
                           border: OutlineInputBorder
                           (
                             borderSide: BorderSide
@@ -278,6 +320,14 @@ class _NoteScreenState extends State<NoteScreen>
                             )
                           )
                         ),
+                        onChanged: (text)
+                        {
+                          if(text.isEmpty || dateTimePicker.date==null )
+                          {
+                            _validateDate = true;
+                            dateTimePicker.date=null;
+                          }
+                        },
                       )
                     ),
                     Spacer(),
@@ -326,6 +376,7 @@ class _NoteScreenState extends State<NoteScreen>
                         ),
                         decoration: InputDecoration
                         (
+                          errorText: _validatetime ? "Time have to be selected" : null,
                           border: OutlineInputBorder
                           (
                             borderSide: BorderSide
@@ -334,6 +385,14 @@ class _NoteScreenState extends State<NoteScreen>
                             )
                           )
                         ),
+                        onChanged: (text)
+                        {
+                          if(text.isEmpty || dateTimePicker.time==null )
+                          {
+                            _validatetime = true;
+                            dateTimePicker.time=null;
+                          }
+                        },
                       )
                     )
                   
