@@ -16,4 +16,10 @@ abstract class NoteDao
   
   @insert
   Future<void> insertNote(Note note);
+
+  @Query("DELETE FROM Note where id = :id")
+  Future<void> deleteNote(int id);
+
+  @update
+  Future<int> updatePersons(List<Note> note); 
 }

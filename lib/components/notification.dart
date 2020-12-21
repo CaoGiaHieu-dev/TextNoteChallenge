@@ -184,6 +184,18 @@ class LocalNotifyManager
     );
   }
 
+  //cancel notification
+  Future<void> cancelNotification(int id) async
+  {
+    await _flutterLocationNotify.cancel(id);
+  }
+
+  //cancel all notification
+  Future<void> cancelAllNotification() async
+  {
+    await _flutterLocationNotify.cancelAll();
+  }
+
 }
 LocalNotifyManager localNotifyManager = LocalNotifyManager.init();
 class RecetiveNotification

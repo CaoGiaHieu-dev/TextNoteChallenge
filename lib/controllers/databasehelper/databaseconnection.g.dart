@@ -78,7 +78,7 @@ class _$NoteDB extends NoteDB {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT, `body` TEXT, `time` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `Note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT, `body` TEXT, `time` INTEGER, `active` INTEGER)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -102,7 +102,20 @@ class _$NoteDao extends NoteDao {
                   'id': item.id,
                   'title': item.title,
                   'body': item.body,
-                  'time': _dateTimeConverter.encode(item.time)
+                  'time': _dateTimeConverter.encode(item.time),
+                  'active': item.active == null ? null : (item.active ? 1 : 0)
+                },
+            changeListener),
+        _noteUpdateAdapter = UpdateAdapter(
+            database,
+            'Note',
+            ['id'],
+            (Note item) => <String, dynamic>{
+                  'id': item.id,
+                  'title': item.title,
+                  'body': item.body,
+                  'time': _dateTimeConverter.encode(item.time),
+                  'active': item.active == null ? null : (item.active ? 1 : 0)
                 },
             changeListener);
 
@@ -114,6 +127,8 @@ class _$NoteDao extends NoteDao {
 
   final InsertionAdapter<Note> _noteInsertionAdapter;
 
+  final UpdateAdapter<Note> _noteUpdateAdapter;
+
   @override
   Future<List<Note>> getallnoteasFuture() async {
     return _queryAdapter.queryList('SELECT * FROM Note',
@@ -121,7 +136,8 @@ class _$NoteDao extends NoteDao {
             row['id'] as int,
             row['title'] as String,
             row['body'] as String,
-            _dateTimeConverter.decode(row['time'] as int)));
+            _dateTimeConverter.decode(row['time'] as int),
+            row['active'] == null ? null : (row['active'] as int) != 0));
   }
 
   @override
@@ -133,7 +149,8 @@ class _$NoteDao extends NoteDao {
             row['id'] as int,
             row['title'] as String,
             row['body'] as String,
-            _dateTimeConverter.decode(row['time'] as int)));
+            _dateTimeConverter.decode(row['time'] as int),
+            row['active'] == null ? null : (row['active'] as int) != 0));
   }
 
   @override
@@ -144,12 +161,25 @@ class _$NoteDao extends NoteDao {
             row['id'] as int,
             row['title'] as String,
             row['body'] as String,
-            _dateTimeConverter.decode(row['time'] as int)));
+            _dateTimeConverter.decode(row['time'] as int),
+            row['active'] == null ? null : (row['active'] as int) != 0));
+  }
+
+  @override
+  Future<void> deleteNote(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Note where id = ?',
+        arguments: <dynamic>[id]);
   }
 
   @override
   Future<void> insertNote(Note note) async {
     await _noteInsertionAdapter.insert(note, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updatePersons(List<Note> note) {
+    return _noteUpdateAdapter.updateListAndReturnChangedRows(
+        note, OnConflictStrategy.abort);
   }
 }
 
